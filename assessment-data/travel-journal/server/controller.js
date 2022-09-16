@@ -29,8 +29,7 @@ module.exports = {
                 city_id serial primary key,
                 name varchar,
                 rating integer,
-                country_id int references countries(country_id)
-
+                country_id integer references countries(country_id)
             );
 
             insert into countries (name)
@@ -241,32 +240,63 @@ module.exports = {
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
     },
+   
     createCity: (req, res) => {
-        let {name, rating} = req.body
-        sequelize.query(`INSERT into cities (name, rating, countryId)
-        values (${name}, ${rating}, ${countryId});`)
+        const {name, rating, countryId} = req.body
+        sequelize.query(`INSERT into cities 
+        (name, rating, country_id)
+        values 
+        ('${name}', '${rating}', '${countryId}');
+        `)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
 
     },
+
+    // sequelize the names of the COLUMNS
+    //MUST put 'single' 'quotes' around template literals
+
+    //you techinally dont need to put single quotes on integers.
+
+
+// checking createCity will only be checkable in PG web 
+//it will not show up on the webpage 
+
+//the value before that on line 247 are the columns of the table
+
+//you are getting the template literal values from the req.body
+
+
     getCities: (req, res) => {
-        sequelize.query(`SELECT a.city_id, a.name, rating, b.country_id, b.name
-        from cities AS a 
-        join countries as b on a.country_id = b.country_id;`)
+        sequelize.query(`
+        SELECT ci.city_id, ci.name as city,
+        ci.rating, 
+        co.country_id, co.name as country
+        from cities as ci 
+        join countries as co on ci.country_id = co.country_id;`)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
     },
-    deleteCity: (req, res) => {
-let {cityId} = req.body
+//selecting using aliasing
+//ci = cityid
+//co= countryid
 
-        sequelize.query(`delete * from cities 
-        where city_id = ${cityId} `)
+//when you are aliasing you use the alias first and then what you are alisasing
+// ci first then as city
+
+//aliasing is super confusing but that was the only part that was wrong in this function
+
+
+
+
+    deleteCity: (req, res) => {
+let {id} = req.params
+//specified params in instructions
+        sequelize.query(`delete  from cities 
+        where city_id = ${id} `)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
     }
 
    
-
-
-
 }
