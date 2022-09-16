@@ -1,7 +1,7 @@
 require('dotenv').config()
-const {CONNECTION_STRING} = process.env;
+const {CONNECTION_STRING} = process.env
 
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize')
 
 const sequelize = new Sequelize(CONNECTION_STRING, {
     dialect: 'postgres',
@@ -29,9 +29,9 @@ module.exports = {
                 city_id serial primary key,
                 name varchar,
                 rating integer,
-                country_id integer foreign key references countries(country_id)
+                country_id int references countries(country_id)
 
-            )
+            );
 
             insert into countries (name)
             values ('Afghanistan'),
@@ -237,10 +237,35 @@ module.exports = {
 
 
     getCountries: (req, res) => {
-        sequelize.query(`SELECT * FROM countries;`)
+        sequelize.query(`select * from countries;`)
+        .then(dbRes => res.status(200).send(dbRes[0]))
+        .catch(err => console.log(err))
+    },
+    createCity: (req, res) => {
+        let {name, rating} = req.body
+        sequelize.query(`INSERT into cities (name, rating, countryId)
+        values (${name}, ${rating}, ${countryId});`)
+        .then(dbRes => res.status(200).send(dbRes[0]))
+        .catch(err => console.log(err))
+
+    },
+    getCities: (req, res) => {
+        sequelize.query(`SELECT a.city_id, a.name, rating, b.country_id, b.name
+        from cities AS a 
+        join countries as b on a.country_id = b.country_id;`)
+        .then(dbRes => res.status(200).send(dbRes[0]))
+        .catch(err => console.log(err))
+    },
+    deleteCity: (req, res) => {
+let {cityId} = req.body
+
+        sequelize.query(`delete * from cities 
+        where city_id = ${cityId} `)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
     }
+
+   
 
 
 
